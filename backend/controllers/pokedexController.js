@@ -6,7 +6,7 @@ const getPokedex = async (req, res) => {
 };
 
 const getPokemonById = async (req, res) => {
-    const pokemon = await Pokemon.findOne({ _id: 1 });
+    const pokemon = await Pokemon.findById(req.params.id);
     res.send(pokemon);
 };
 
