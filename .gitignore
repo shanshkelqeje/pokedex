@@ -4,5 +4,8 @@ node_modules/
 # Typescript
 next-env.d.ts
 
+# Optional REPL history
+.next
+
 # Misc
 .DS_Store
