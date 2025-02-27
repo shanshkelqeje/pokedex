@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 
+/*** MongoDB ***/
 main = async () => {
     await mongoose.connect(
         "mongodb+srv://shanshkelqeje:41TfhtdVAMrHQL31@pokedb.ygio4.mongodb.net/?retryWrites=true&w=majority&appName=PokeDB",
@@ -37,8 +38,36 @@ const pokemonSchema = new mongoose.Schema(
 
 const Pokemon = mongoose.model("Pokemon", pokemonSchema);
 
-app.get("/", async (req, res) => {
-    const json = await getPokemon();
+getAndSaveFirstGenPokemon = async () => {
+    const promises = [];
+
+    for (let id = 1; id <= 151; id++) {
+        const json = await getPokemon(id);
+        promises.push(savePokemon(json));
+    }
+
+    await Promise.all(promises); // Wait for all pokemon to be saved
+
+    const count = await Pokemon.countDocuments();
+    console.log(`${count} Pokemon in collection.`);
+};
+
+/** Retrieves a Pokemon's JSON data from the 'PokeAPI' server. */
+getPokemon = async (id) => {
+    const url = `https://pokeapi.co/api/v2/pokemon/${id}/`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(error.message);
+    }
+};
+
+/** Saves a Pokemon's JSON data to the 'pokemon' collection of the 'pokedex' database in MongoDB */
+savePokemon = async (json) => {
     const {
         id,
         name,
@@ -70,25 +99,24 @@ app.get("/", async (req, res) => {
         types: types.map((slot) => slot.type.name),
     });
 
-    await pokemon.save();
+    await Pokemon.findOneAndUpdate(
+        { _id: id },
+        { $set: pokemon },
+        { upsert: true } // Prevent duplicate key error
+    );
+
+    console.log(`Saved/Updated: ${name}`);
+};
+
+// Scripts
+getAndSaveFirstGenPokemon();
+
+/*** Express ***/
+app.get("/", async (req, res) => {
+    const pokemon = await Pokemon.find();
     res.send(pokemon);
 });
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
-
-/** Retrieves a Pokemon's JSON data from the PokeAPI server. */
-getPokemon = async () => {
-    const url = "https://pokeapi.co/api/v2/pokemon/1/";
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-        const json = await response.json();
-        return json;
-    } catch (error) {
-        console.error(error.message);
-    }
-};
