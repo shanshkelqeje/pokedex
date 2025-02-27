@@ -1,2 +1,8 @@
 # Dependency directories
 node_modules/
+
+# Typescript
+next-env.d.ts
+
+# Misc
+.DS_Store
