@@ -1,4 +1,4 @@
-export const getPokemon = async (id: number) => {
+export const getPokemon = async (id: number | string) => {
     const API_URL = `http://localhost:3000/pokemon`;
     try {
         const response = await fetch(`${API_URL}/${id}`);
