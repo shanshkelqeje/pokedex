@@ -1,9 +1,10 @@
-import { getPokemon } from "@/lib/pokemonApi";
+import { getPokedex, getPokemon } from "@/lib/pokemonApi";
 
 export default async function PokemonPage(props: {
     params: Promise<{ id: string }>;
 }) {
     const params = await props.params;
+    const pokedex = await getPokedex();
     const [pokemon, palette] = await getPokemon(params.id);
 
     if (!pokemon)
@@ -12,15 +13,64 @@ export default async function PokemonPage(props: {
     const parsedPalette = JSON.parse(palette.colors[0].replace(/'/g, '"'));
 
     return (
+        // Body wrapper
         <div
-            className="grid grid-cols-[20vh_auto_20vh]"
+            className="grid grid-cols-[2fr_3fr_2fr]"
             style={{ backgroundColor: parsedPalette[0] }}
         >
-            <div></div>
+            {/* Left column: Pokedex */}
+            <div>
+                <div className="ml-12 mt-12 grid auto-rows-max gap-4">
+                    <div className="bg-white rounded-md shadow-md p-2">
+                        <input
+                            type="text"
+                            placeholder="Filter..."
+                            className="w-full text-gray-800 outline-none"
+                        />
+                    </div>
+                    <div className="max-h-[75vh] overflow-y-auto border-gray-600 rounded-md">
+                        <table className="w-full">
+                            <tbody>
+                                {pokedex.map(
+                                    ({
+                                        _id,
+                                        sprite,
+                                        name,
+                                    }: {
+                                        _id: number;
+                                        sprite: string;
+                                        name: string;
+                                    }) => (
+                                        <tr
+                                            key={_id}
+                                            className="border-b border-gray-700"
+                                        >
+                                            <td className="px-4 py-2">{_id}</td>
+                                            <td className="px-4 py-2">
+                                                <img
+                                                    src={sprite}
+                                                    alt={name}
+                                                    className="w-24 h-24"
+                                                />
+                                            </td>
+                                            <td className="capitalize px-4 py-2">
+                                                {name}
+                                            </td>
+                                        </tr>
+                                    )
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {/* Middle column: Pokemon card */}
             <div className="max-w-2xl mx-auto grid grid-rows-[minmax(35vh,45vh)_auto] h-screen">
+                {/* Middle top: Pokemon information and artwork */}
                 <div className="flex">
+                    {/* Middle top-left: Pokemon information */}
                     <div
-                        className="p-6 md:p-8"
+                        className="p-6 md:p-8 w-[225px]"
                         style={{ backgroundColor: parsedPalette[2] }}
                     >
                         <div>
@@ -54,19 +104,22 @@ export default async function PokemonPage(props: {
                             </div>
                         </div>
                     </div>
+                    {/* Middle top-right: Pokemon artwork */}
                     <div
-                        className="p-6 md:p-8"
+                        className="p-6 md:p-8 w-[450px]"
                         style={{ backgroundColor: parsedPalette[1] }}
                     >
                         <img
                             src={pokemon.official_artwork}
+                            alt={pokemon.name}
                             className="mx-auto h-full mx-auto h-full opacity-100 transition duration-300 hover:opacity-100"
                         />
                     </div>
                 </div>
+                {/* Middle bottom: Pokemon abilities */}
                 <div className="p-6 md:p-8 bg-[#24272e]">
-                    <div className="grid gap-4">
-                        <div className="flex flex-col">
+                    <div>
+                        <div className="grid auto-cols-max gap-4">
                             {pokemon.abilities.map(
                                 ({
                                     name,
@@ -75,7 +128,7 @@ export default async function PokemonPage(props: {
                                     name: string;
                                     description: string;
                                 }) => (
-                                    <div key={name} className="mt-2">
+                                    <div key={name} className="mt-4">
                                         <p className="font-bold text-white capitalize">
                                             {name}
                                         </p>
@@ -89,6 +142,7 @@ export default async function PokemonPage(props: {
                     </div>
                 </div>
             </div>
+            {/* Right column: Empty */}
             <div></div>
         </div>
     );
