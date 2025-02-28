@@ -7,8 +7,21 @@ const getPokedex = async (req, res) => {
 };
 
 const getPokemonById = async (req, res) => {
-    const pokemon = await Pokemon.findById(req.params.id);
-    const palette = await Palette.findById(req.params.id);
+    const { id } = req.params;
+    let pokemon, palette;
+
+    if (!isNaN(id)) {
+        pokemon = await Pokemon.findById(id);
+        palette = await Palette.findById(id);
+    } else {
+        pokemon = await Pokemon.findOne({ name: new RegExp(`^${id}$`, "i") });
+        palette = await Palette.findOne({ _id: pokemon?._id });
+    }
+
+    if (!pokemon) {
+        return res.status(404).send({ error: "Pokemon not found" });
+    }
+
     res.send([pokemon, palette]);
 };
 
