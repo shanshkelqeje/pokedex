@@ -6,7 +6,7 @@ const pokemonSchema = new mongoose.Schema(
         name: String,
         height: Number,
         weight: Number,
-        abilities: [String],
+        abilities: [{ name: String, description: String }],
         sprite: String,
         official_artwork: String,
         cry: String,
@@ -19,6 +19,7 @@ const pokemonSchema = new mongoose.Schema(
             speed: Number,
         },
         types: [String],
+        type_colors: [String],
     },
     { collection: "pokemon" }
 );
