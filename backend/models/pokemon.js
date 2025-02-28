@@ -8,6 +8,7 @@ const pokemonSchema = new mongoose.Schema(
         weight: Number,
         abilities: [String],
         sprite: String,
+        official_artwork: String,
         cry: String,
         stats: {
             hp: Number,
