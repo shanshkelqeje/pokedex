@@ -1,4 +1,5 @@
-const Pokemon = require("../models/pokemon");
+const Pokemon = require("../models/Pokemon");
+const Palette = require("../models/Palette");
 
 const getPokedex = async (req, res) => {
     const pokemon = await Pokemon.find();
@@ -7,7 +8,8 @@ const getPokedex = async (req, res) => {
 
 const getPokemonById = async (req, res) => {
     const pokemon = await Pokemon.findById(req.params.id);
-    res.send(pokemon);
+    const palette = await Palette.findById(req.params.id);
+    res.send([pokemon, palette]);
 };
 
 module.exports = { getPokedex, getPokemonById };
